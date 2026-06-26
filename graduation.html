@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宝宝的毕业之旅</title>
+    <style>
+        :root {
+            --pink: #ffb6c1;
+            --green: #90ee90;
+            --purple: #b8a9d4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Microsoft YaHei', 'STSong', 'SimSun', serif;
+            overflow-x: hidden;
+            background: #08080f;
+            color: #e8e8e8;
+        }
+
+        /* ============ 背景层 ============ */
+        .bg-layer {
+            position: fixed; width: 100%; height: 100%;
+            top: 0; left: 0; z-index: 0; opacity: 0.12; pointer-events: none;
+        }
+        .bg-image {
+            position: absolute;
+            background-size: cover; background-position: center;
+            filter: blur(6px) saturate(0.6);
+            animation: bgFloat 25s ease-in-out infinite;
+        }
+        .bg-image:nth-child(1) { width:300px; height:300px; top:5%; left:3%; background-image:url('7.png'); animation-delay:0s; }
+        .bg-image:nth-child(2) { width:260px; height:260px; top:55%; right:8%; background-image:url('8.jpg'); animation-delay:3s; }
+        .bg-image:nth-child(3) { width:280px; height:280px; bottom:10%; left:12%; background-image:url('9.jpg'); animation-delay:6s; }
+        .bg-image:nth-child(4) { width:340px; height:340px; top:25%; right:18%; background-image:url('10.jpg'); animation-delay:9s; }
+        .bg-image:nth-child(5) { width:250px; height:250px; bottom:20%; right:3%; background-image:url('14.jpg'); animation-delay:12s; }
+        @keyframes bgFloat {
+            0%,100% { transform:translate(0,0) scale(1) rotate(0deg); }
+            33% { transform:translate(25px,-35px) scale(1.06) rotate(1deg); }
+            66% { transform:translate(-20px,25px) scale(0.94) rotate(-1deg); }
+        }
+
+        .gradient-overlay {
+            position: fixed; width:100%; height:100%;
+            background: linear-gradient(160deg,
+                rgba(255,182,193,0.25) 0%,
+                rgba(144,238,144,0.15) 35%,
+                rgba(138,43,226,0.2) 70%,
+                rgba(255,182,193,0.2) 100%);
+            z-index:1; pointer-events:none;
+        }
+
+        /* ============ 星空 ============ */
+        .stars { position:fixed; width:100%; height:100%; z-index:2; pointer-events:none; }
+        .star {
+            position:absolute; width:2px; height:2px;
+            background:white; border-radius:50%;
+            animation:twinkle 3s infinite;
+        }
+        @keyframes twinkle {
+            0%,100% { opacity:0.2; }
+            50% { opacity:1; }
+        }
+
+        /* ============ 漂浮古诗词 & 弹幕 ============ */
+        .floating-poem {
+            position: fixed;
+            z-index: 50;
+            pointer-events: none;
+            font-family: 'STKaiti', 'KaiTi', 'SimSun', serif;
+            font-size: 1.4em;
+            white-space: nowrap;
+            opacity: 0;
+        }
+        /* 从左飘到右 */
+        .floating-poem.ltr {
+            color: rgba(255,255,255,0.5);
+            text-shadow: 0 0 20px rgba(255,182,193,0.4);
+            animation: driftLTR 14s linear forwards;
+        }
+        @keyframes driftLTR {
+            0%   { opacity:0; transform:translateX(-80px); }
+            8%   { opacity:0.65; }
+            85%  { opacity:0.5; }
+            100% { opacity:0; transform:translateX(calc(100vw + 80px)); }
+        }
+        /* 从右飘到左 */
+        .floating-poem.rtl {
+            color: rgba(255,255,255,0.5);
+            text-shadow: 0 0 20px rgba(144,238,144,0.4);
+            animation: driftRTL 14s linear forwards;
+        }
+        @keyframes driftRTL {
+            0%   { opacity:0; transform:translateX(calc(100vw + 80px)); }
+            8%   { opacity:0.65; }
+            85%  { opacity:0.5; }
+            100% { opacity:0; transform:translateX(-80px); }
+        }
+        /* 对角线斜飘 */
+        .floating-poem.diag {
+            color: rgba(255,255,255,0.45);
+            text-shadow: 0 0 20px rgba(183,169,212,0.5);
+            animation: driftDiag 16s linear forwards;
+        }
+        @keyframes driftDiag {
+            0%   { opacity:0; transform:translateX(-80px) translateY(40px); }
+            8%   { opacity:0.6; }
+            85%  { opacity:0.45; }
+            100% { opacity:0; transform:translateX(calc(100vw + 80px)) translateY(-60px); }
+        }
+
+        /* 特殊大字弹幕 - 宝宝最好看了 */
+        .floating-poem.big-love {
+            font-size: 3em;
+            font-weight: bold;
+            color: #ffb6c1;
+            text-shadow: 0 0 30px rgba(255,105,180,0.7), 0 0 60px rgba(255,182,193,0.4);
+            animation: driftBigLove 10s ease-in-out forwards;
+            letter-spacing: 6px;
+            z-index: 55;
+        }
+        @keyframes driftBigLove {
+            0%   { opacity:0; transform:translateX(-200px) scale(0.5); }
+            15%  { opacity:1; transform:translateX(30vw) scale(1.2); }
+            35%  { opacity:0.9; transform:translateX(50vw) scale(1); }
+            70%  { opacity:0.6; transform:translateX(70vw) scale(0.9); }
+            100% { opacity:0; transform:translateX(calc(100vw + 200px)) scale(0.4); }
+        }
+
+        /* 特殊大字弹幕 - 我想死你了 */
+        .floating-poem.miss-you {
+            font-size: 2.8em;
+            font-weight: bold;
+            color: #90ee90;
+            text-shadow: 0 0 30px rgba(144,238,144,0.7), 0 0 60px rgba(144,238,144,0.3);
+            animation: driftMissYou 11s ease-in-out forwards;
+            letter-spacing: 5px;
+            z-index: 55;
+        }
+        @keyframes driftMissYou {
+            0%   { opacity:0; transform:translateX(calc(100vw + 200px)) scale(0.5); }
+            15%  { opacity:1; transform:translateX(70vw) scale(1.15); }
+            35%  { opacity:0.9; transform:translateX(45vw) scale(1); }
+            70%  { opacity:0.6; transform:translateX(20vw) scale(0.85); }
+            100% { opacity:0; transform:translateX(-200px) scale(0.4); }
+        }
+
+        /* ============ 艺术字 ============ */
+        .art-text {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffb6c1 0%, #ff69b4 30%, #90ee90 60%, #ffb6c1 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: artShine 3s linear infinite;
+            font-weight: bold;
+        }
+        @keyframes artShine {
+            to { background-position: 200% center; }
+        }
+
+        .art-text-glow {
+            display: inline-block;
+            color: #ffb6c1;
+            text-shadow: 0 0 10px rgba(255,182,193,0.8), 0 0 30px rgba(255,105,180,0.5), 0 0 50px rgba(255,182,193,0.3);
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+        @keyframes glowPulse {
+            0%,100% { text-shadow: 0 0 10px rgba(255,182,193,0.8), 0 0 30px rgba(255,105,180,0.5); }
+            50% { text-shadow: 0 0 20px rgba(255,182,193,1), 0 0 50px rgba(255,105,180,0.8), 0 0 80px rgba(255,182,193,0.5); }
+        }
+
+        .wangchun {
+            display: inline-block;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #fff;
+            text-shadow: 0 0 8px rgba(255,255,255,0.6), 0 0 20px rgba(144,238,144,0.4);
+            margin-right: 2px;
+        }
+
+        /* ============ 主容器 ============ */
+        .container {
+            position:relative; z-index:10;
+            max-width:1400px; margin:0 auto; padding:0 20px;
+        }
+
+        /* ============ 开场 Hero ============ */
+        .hero {
+            height:100vh; display:flex; flex-direction:column;
+            justify-content:center; align-items:center; text-align:center;
+            position:relative;
+        }
+        .hero h1 {
+            font-size:5.5em; margin-bottom:20px; letter-spacing:10px;
+            background:linear-gradient(45deg, #ffb6c1, #90ee90);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+            animation:fadeInScale 1.5s ease-out;
+        }
+        .hero .subtitle {
+            font-size:1.8em; color:rgba(255,255,255,0.75);
+            margin-bottom:50px;
+            animation:fadeIn 2s ease-out 0.5s backwards;
+        }
+        .avatars {
+            display:flex; gap:70px; align-items:center;
+            animation:fadeIn 2s ease-out 1s backwards;
+        }
+        .avatar-item { text-align:center; }
+        .avatar-circle {
+            width:170px; height:170px; border-radius:50%;
+            border:3px solid rgba(255,255,255,0.5); overflow:hidden;
+            box-shadow: 0 0 50px rgba(255,182,193,0.4);
+            animation:float 3.5s ease-in-out infinite;
+            transition:transform 0.3s ease;
+        }
+        .avatar-circle:hover { transform:scale(1.15) rotate(5deg); }
+        .avatar-circle img { width:100%; height:100%; object-fit:cover; }
+        .avatar-label { margin-top:18px; font-size:1.3em; color:var(--pink); }
+        .heart-separator {
+            font-size:3em;
+            animation:heartbeat 1.5s ease-in-out infinite;
+            filter:drop-shadow(0 0 15px #ff69b4);
+        }
+        @keyframes heartbeat {
+            0%,100% { transform:scale(1); }
+            25% { transform:scale(1.3); }
+            50% { transform:scale(1); }
+        }
+        @keyframes float {
+            0%,100% { transform:translateY(0); }
+            50% { transform:translateY(-12px); }
+        }
+        .date-marker {
+            position:absolute; bottom:70px;
+            font-size:1.15em; color:rgba(255,255,255,0.5);
+            animation:fadeIn 3s ease-out 1.5s backwards;
+        }
+        .date-marker span { color:var(--green); font-weight:600; }
+
+        .scroll-hint {
+            position:absolute; bottom:25px; left:50%; transform:translateX(-50%);
+            font-size:1.8em; color:rgba(255,255,255,0.4);
+            animation:bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%,100% { transform:translateX(-50%) translateY(0); }
+            50% { transform:translateX(-50%) translateY(-8px); }
+        }
+
+        /* ============ 诗意过渡区 ============ */
+        .poetry-section {
+            min-height:50vh; display:flex; align-items:center; justify-content:center;
+            padding:80px 20px; text-align:center;
+        }
+        .poetry-text {
+            max-width:750px; font-size:1.5em; line-height:2.6;
+            color:rgba(255,255,255,0.8);
+            text-shadow:0 2px 15px rgba(0,0,0,0.5);
+        }
+        .poetry-text .verse {
+            margin:28px 0; opacity:0; transform:translateY(30px);
+            animation:verseAppear 1s ease-out forwards;
+        }
+        .poetry-text .verse:nth-child(1) { animation-delay:0.15s; }
+        .poetry-text .verse:nth-child(2) { animation-delay:0.30s; }
+        .poetry-text .verse:nth-child(3) { animation-delay:0.45s; }
+        .poetry-text .verse:nth-child(4) { animation-delay:0.60s; }
+        .poetry-text .verse:nth-child(5) { animation-delay:0.75s; }
+        .poetry-text .verse:nth-child(6) { animation-delay:0.90s; }
+        @keyframes verseAppear {
+            to { opacity:1; transform:translateY(0); }
+        }
+
+        /* ============ 相册 - 艺术设计 ============ */
+        .gallery {
+            padding:60px 20px 120px;
+            position:relative;
+        }
+        .gallery-title {
+            text-align:center; font-size:2.8em; margin-bottom:100px;
+            background:linear-gradient(45deg, var(--pink), var(--green));
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+            letter-spacing:4px;
+        }
+
+        /* 相册时间线 */
+        .gallery-timeline {
+            position:absolute;
+            left:50%; top:180px; bottom:80px;
+            width:2px;
+            background:linear-gradient(to bottom,
+                transparent 0%,
+                rgba(255,182,193,0.6) 5%,
+                rgba(144,238,144,0.4) 50%,
+                rgba(255,182,193,0.6) 95%,
+                transparent 100%);
+            transform:translateX(-50%);
+            z-index:5;
+            border-radius:1px;
+        }
+
+        .gallery-item {
+            display:flex; align-items:center; justify-content:center;
+            margin:100px 0;
+            opacity:0; transform:translateY(60px);
+            transition:all 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position:relative; z-index:6;
+            min-height:300px;
+        }
+        .gallery-item.visible {
+            opacity:1; transform:translateY(0);
+        }
+
+        /* 时间线连接点 */
+        .timeline-dot {
+            position:absolute; left:50%; top:50%;
+            width:14px; height:14px; border-radius:50%;
+            background:var(--pink);
+            box-shadow:0 0 20px rgba(255,182,193,0.8);
+            transform:translate(-50%, -50%);
+            z-index:7;
+            transition:all 0.6s ease;
+        }
+        .gallery-item.visible .timeline-dot {
+            box-shadow:0 0 30px rgba(144,238,144,0.9);
+            background:var(--green);
+        }
+
+        .gallery-image {
+            flex:1; max-width:480px; position:relative; z-index:6;
+        }
+        .gallery-image img {
+            width:100%; border-radius:16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            transition:transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .gallery-image img:hover {
+            transform:scale(1.04);
+            box-shadow: 0 25px 70px rgba(255,182,193,0.4);
+        }
+
+        /* 图片之间的装饰连线 */
+        .gallery-image::before {
+            content:'';
+            position:absolute;
+            width:60px; height:60px;
+            border:1px solid rgba(255,255,255,0.15);
+            border-radius:50%;
+            pointer-events:none;
+            z-index:-1;
+            animation:decorPulse 4s ease-in-out infinite;
+        }
+        .gallery-item.left .gallery-image::before  { right:-30px; top:-30px; }
+        .gallery-item.right .gallery-image::before { left:-30px; bottom:-30px; animation-delay:2s; }
+        @keyframes decorPulse {
+            0%,100% { transform:scale(1); opacity:0.3; }
+            50% { transform:scale(1.5); opacity:0.1; }
+        }
+
+        .gallery-text {
+            flex:1; padding:0 50px;
+            font-size:1.25em; line-height:2.2;
+            color:rgba(255,255,255,0.75);
+            position:relative; z-index:6;
+        }
+        .gallery-text::first-line {
+            font-size:1.3em;
+            color:var(--pink);
+        }
+
+        /* 诗句穿插 */
+        .poetry-interlude {
+            text-align:center; padding:50px 20px;
+            opacity:0; transform:translateY(40px);
+            transition:all 1.2s ease-out;
+            position:relative; z-index:6;
+        }
+        .poetry-interlude.visible {
+            opacity:1; transform:translateY(0);
+        }
+        .poetry-interlude p {
+            display:inline-block;
+            font-family:'STKaiti','KaiTi','SimSun',serif;
+            font-size:1.5em; color:rgba(255,255,255,0.6);
+            letter-spacing:4px;
+            padding:15px 30px;
+            border-left:2px solid rgba(255,182,193,0.3);
+            border-right:2px solid rgba(144,238,144,0.3);
+        }
+
+        /* ============ 毕业寄语 ============ */
+        .graduation-message {
+            min-height:80vh; display:flex; align-items:center; justify-content:center;
+            padding:80px 20px; text-align:center;
+        }
+        .message-content {
+            max-width:850px;
+            background:rgba(255,255,255,0.03);
+            backdrop-filter:blur(15px);
+            border-radius:24px; padding:70px 50px;
+            border:1px solid rgba(255,255,255,0.08);
+            position:relative; overflow:hidden;
+        }
+        .message-content::before {
+            content:'';
+            position:absolute; top:-50%; left:-50%;
+            width:200%; height:200%;
+            background:radial-gradient(circle, rgba(255,182,193,0.06) 0%, transparent 60%);
+            animation:messageGlow 8s linear infinite;
+        }
+        @keyframes messageGlow {
+            from { transform:rotate(0deg); }
+            to { transform:rotate(360deg); }
+        }
+        .message-content h2 {
+            font-size:2.6em; margin-bottom:35px; color:var(--green);
+            position:relative; z-index:1;
+        }
+        .message-content p {
+            font-size:1.35em; line-height:2.2; margin:20px 0;
+            color:rgba(255,255,255,0.8); position:relative; z-index:1;
+        }
+        .highlight { color:var(--pink); font-weight:600; }
+        .university { color:var(--green); font-weight:500; }
+
+        /* ============ 终章 ============ */
+        .finale {
+            height:100vh; display:flex; flex-direction:column;
+            align-items:center; justify-content:center; text-align:center;
+            position:relative;
+        }
+        .finale h1 {
+            font-size:4.5em; margin-bottom:25px;
+            background:linear-gradient(45deg, #ffb6c1, #90ee90, #ff69b4);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+            animation:gradientShift 3s ease infinite;
+        }
+        @keyframes gradientShift {
+            0%,100% { filter:hue-rotate(0deg); }
+            50% { filter:hue-rotate(30deg); }
+        }
+        .finale-avatars { display:flex; gap:35px; margin-top:45px; }
+        .finale-avatar {
+            width:110px; height:110px; border-radius:50%;
+            border:3px solid rgba(255,255,255,0.4); overflow:hidden;
+            animation:float 2s ease-in-out infinite;
+        }
+        .finale-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+
+        /* ============ 浮动头像 ============ */
+        .floating-wrapper {
+            position:fixed; z-index:100; pointer-events:none;
+            transition: width 0.4s ease, height 0.4s ease;
+        }
+        .floating-avatar {
+            width:100%; height:100%; border-radius:50%;
+            border:3px solid rgba(144,238,144,0.5); overflow:hidden;
+            box-shadow:0 0 35px rgba(144,238,144,0.45);
+            pointer-events:auto;
+            animation:gentleSpin 8s linear infinite;
+        }
+        .floating-avatar img { width:100%; height:100%; object-fit:cover; }
+        @keyframes gentleSpin {
+            from { transform:rotate(0deg); }
+            to { transform:rotate(360deg); }
+        }
+        .floating-avatar:hover {
+            animation:gentleSpin 2s linear infinite;
+            box-shadow:0 0 50px rgba(144,238,144,0.8);
+        }
+
+        /* ============ 音乐控制 ============ */
+        .music-control {
+            position:fixed; bottom:25px; left:25px; z-index:1000;
+            background:rgba(0,0,0,0.5); backdrop-filter:blur(10px);
+            padding:12px 22px; border-radius:25px;
+            border:1px solid rgba(255,255,255,0.15); cursor:pointer;
+            transition:all 0.3s ease; font-size:1em; color:white;
+            display:flex; align-items:center; gap:8px;
+        }
+        .music-control:hover {
+            background:rgba(255,255,255,0.15); transform:scale(1.04);
+        }
+        .music-visualizer {
+            display:flex; gap:2px; align-items:flex-end; height:16px;
+        }
+        .music-visualizer span {
+            width:3px; background:var(--pink); border-radius:2px;
+            animation:visualizer 0.8s ease-in-out infinite;
+        }
+        .music-visualizer span:nth-child(1) { height:60%; animation-delay:0s; }
+        .music-visualizer span:nth-child(2) { height:100%; animation-delay:0.15s; }
+        .music-visualizer span:nth-child(3) { height:40%; animation-delay:0.3s; }
+        .music-visualizer span:nth-child(4) { height:80%; animation-delay:0.45s; }
+        @keyframes visualizer {
+            0%,100% { transform:scaleY(1); }
+            50% { transform:scaleY(0.4); }
+        }
+
+        /* ============ 响应式 ============ */
+        @media (max-width:768px) {
+            .hero h1 { font-size:2.4em; }
+            .avatars { flex-direction:column; gap:35px; }
+            .gallery-timeline { left:20px; }
+            .gallery-item.left, .gallery-item.right { flex-direction:column !important; }
+            .gallery-text { padding:25px 0 0; }
+            .poetry-interlude p { font-size:1.15em; padding:10px 20px; }
+            .timeline-dot { left:20px; }
+            .message-content { padding:40px 25px; }
+            .floating-wrapper { width:60px !important; height:60px !important; }
+        }
+
+        @keyframes fadeInScale {
+            from { opacity:0; transform:scale(0.8); }
+            to { opacity:1; transform:scale(1); }
+        }
+        @keyframes fadeIn {
+            from { opacity:0; }
+            to { opacity:1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景 -->
+    <div class="bg-layer">
+        <div class="bg-image"></div><div class="bg-image"></div>
+        <div class="bg-image"></div><div class="bg-image"></div>
+        <div class="bg-image"></div>
+    </div>
+    <div class="gradient-overlay"></div>
+    <div class="stars" id="stars"></div>
+
+    <!-- 浮动头像 - 宝宝 -->
+    <div class="floating-wrapper" id="floatingWrapper">
+        <div class="floating-avatar"><img src="2.jpg" alt="宝宝"></div>
+    </div>
+
+    <!-- 音乐控制 -->
+    <div class="music-control" id="musicControl">
+        <div class="music-visualizer"><span></span><span></span><span></span><span></span></div>
+        <span id="musicLabel">今宵是飘逸的利己主义者</span>
+    </div>
+    <audio id="bgMusic" loop preload="auto" autoplay>
+        <source src="今宵是飘逸的利己主义者.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="container">
+        <!-- 开场 -->
+        <section class="hero">
+            <h1>毕业快乐</h1>
+            <div class="subtitle">致我最爱的<span class="wangchun">王春</span><span class="art-text-glow">宝宝</span></div>
+            <div class="avatars">
+                <div class="avatar-item">
+                    <div class="avatar-circle"><img src="1.jpg" alt="我"></div>
+                    <div class="avatar-label">我</div>
+                </div>
+                <div class="heart-separator">💕</div>
+                <div class="avatar-item">
+                    <div class="avatar-circle"><img src="2.jpg" alt="宝宝"></div>
+                    <div class="avatar-label">宝宝</div>
+                </div>
+            </div>
+            <div class="date-marker">相识于 <span>2025.11.8</span></div>
+            <div class="scroll-hint">↓</div>
+        </section>
+
+        <!-- 诗意过渡 -->
+        <section class="poetry-section">
+            <div class="poetry-text">
+                <div class="verse">从相识的那个秋天，你用画笔记录我们的故事</div>
+                <div class="verse">每一笔每一划，都是爱的印记</div>
+                <div class="verse">二百三十个日夜悄然流过</div>
+                <div class="verse">你在画布上耕种的时光，终于开出了花</div>
+                <div class="verse">四年磨一剑，霜刃未曾试</div>
+                <div class="verse">如今你毕业了，新的篇章即将开启</div>
+            </div>
+        </section>
+
+        <!-- 相册 -->
+        <section class="gallery">
+            <h2 class="gallery-title"><span class="art-text-glow">宝宝</span>的画 · 我们的回忆</h2>
+            <div class="gallery-timeline"></div>
+
+            <div class="gallery-item left" data-scroll>
+                <div class="gallery-image"><img src="3.jpg" alt="回忆1"></div>
+                <div class="timeline-dot"></div>
+            </div>
+
+            <!-- 诗句穿插 -->
+            <div class="poetry-interlude" data-scroll>
+                <p>「 世间所有的相遇，都是久别重逢 」</p>
+            </div>
+
+            <div class="gallery-item right" data-scroll>
+                <div class="gallery-image"><img src="4.jpg" alt="回忆2"></div>
+                <div class="timeline-dot"></div>
+            </div>
+
+            <div class="gallery-item left" data-scroll>
+                <div class="gallery-image"><img src="5.jpg" alt="回忆3"></div>
+                <div class="timeline-dot"></div>
+            </div>
+
+            <!-- 诗句穿插 -->
+            <div class="poetry-interlude" data-scroll>
+                <p>「 画笔落下之处，皆是我们的山河 」</p>
+            </div>
+
+            <div class="gallery-item right" data-scroll>
+                <div class="gallery-image"><img src="6.jpg" alt="回忆4"></div>
+                <div class="timeline-dot"></div>
+            </div>
+
+            <div class="gallery-item left" data-scroll>
+                <div class="gallery-image"><img src="11.jpg" alt="回忆5"></div>
+                <div class="timeline-dot"></div>
+            </div>
+
+            <!-- 诗句穿插 -->
+            <div class="poetry-interlude" data-scroll>
+                <p>「 你画下世界，我画下你 」</p>
+            </div>
+
+            <div class="gallery-item right" data-scroll>
+                <div class="gallery-image"><img src="12.jpg" alt="回忆6"></div>
+                <div class="timeline-dot"></div>
+            </div>
+
+            <div class="gallery-item left" data-scroll>
+                <div class="gallery-image"><img src="13.jpg" alt="回忆7"></div>
+                <div class="timeline-dot"></div>
+            </div>
+        </section>
+
+        <!-- 诗句穿插 -->
+        <div class="poetry-interlude" data-scroll>
+            <p>「 愿你前程似锦，归来仍是少年 」</p>
+        </div>
+
+        <!-- 毕业寄语 -->
+        <section class="graduation-message">
+            <div class="message-content">
+                <h2>给<span class="art-text-glow">宝宝</span>的毕业寄语</h2>
+                <p class="university">长春工业大学 · 设计专业毕业</p>
+                <p>四年时光匆匆而过</p>
+                <p><span class="highlight">宝宝</span>用无数个日夜打磨着梦想</p>
+                <p>每一点努力，每一次进步</p>
+                <p>都离梦想更近一步</p>
+                <p style="margin-top:35px;">毕业不是终点</p>
+                <p>而是<span class="highlight">宝宝</span>作为设计师的全新起点</p>
+                <p>愿<span class="highlight">宝宝</span>早日找到心仪的工作</p>
+                <p>愿你的每一个设计都能触动人心</p>
+                <p>愿你的未来像你的画一样色彩斑斓</p>
+                <p>愿你永远保持创作的热忱与初心</p>
+                <p>愿你走过的路，都繁花似锦</p>
+                <p>愿我们并肩前行，轻盈如风</p>
+                <p style="margin-top:35px; font-size:1.45em;">
+                    <strong class="art-text">我会永远陪在你身边 ❤️</strong>
+                </p>
+            </div>
+        </section>
+
+        <!-- 终章前诗句 -->
+        <div class="poetry-section" style="min-height:30vh; padding:40px 20px;">
+            <div class="poetry-text">
+                <div class="verse">岁月悠长，山河无恙</div>
+                <div class="verse">愿你永远是那个爱画画的少年</div>
+                <div class="verse">愿我们的故事永远未完待续</div>
+            </div>
+        </div>
+
+        <!-- 终章 -->
+        <section class="finale" id="finale">
+            <h1>🎓 毕业快乐 🎓</h1>
+            <p style="font-size:1.5em; color:rgba(255,255,255,0.75);">致我最爱的<span class="wangchun">王春</span><span class="art-text-glow">宝宝</span></p>
+            <p style="font-size:1.1em; color:rgba(255,255,255,0.45); margin-top:15px;">长春工业大学 · 二零二二届 · 设计专业</p>
+            <div class="finale-avatars">
+                <div class="finale-avatar"><img src="1.jpg" alt="我"></div>
+                <div class="finale-avatar"><img src="2.jpg" alt="宝宝"></div>
+            </div>
+            <p style="margin-top:45px; font-size:1.1em; color:rgba(255,255,255,0.5);">
+                — 相识于2025.11.8 · 毕业于2026.6 —
+            </p>
+        </section>
+    </div>
+
+    <!-- 漂浮诗句容器 -->
+    <div id="poemContainer"></div>
+
+    <script>
+        // ======== 星空 ========
+        function createStars() {
+            const c = document.getElementById('stars');
+            for (let i = 0; i < 150; i++) {
+                const s = document.createElement('div');
+                s.className = 'star';
+                s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s`;
+                c.appendChild(s);
+            }
+        }
+
+        // ======== 浮动头像 - 平滑路径移动 ========
+        const floatingWrapper = document.getElementById('floatingWrapper');
+
+        // 路径关键帧：在整个滚动范围内线性插值，确保无跳跃
+        function updateFloatingAvatar() {
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            const p = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 0;
+
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const m = 30; // margin
+
+            // 六个关键帧：右下 → 左下 → 左上 → 右上 → 趋中 → 停在"毕业快乐"上方
+            const keys = [
+                { t: 0.00, x: vw-m,     y: vh-m,     s: 80 },
+                { t: 0.18, x: m,         y: vh-m,     s: 90 },
+                { t: 0.40, x: m,         y: m,        s: 100 },
+                { t: 0.65, x: vw-m,      y: m,        s: 110 },
+                { t: 0.88, x: vw/2,      y: vh/2,     s: 135 },
+                { t: 1.00, x: vw/2,      y: vh*0.20,  s: 150 },
+            ];
+
+            // 找到 p 所在的区间并线性插值
+            let x, y, size;
+            for (let i = 0; i < keys.length - 1; i++) {
+                if (p >= keys[i].t && p <= keys[i+1].t) {
+                    const seg = (p - keys[i].t) / (keys[i+1].t - keys[i].t);
+                    x = keys[i].x + (keys[i+1].x - keys[i].x) * seg;
+                    y = keys[i].y + (keys[i+1].y - keys[i].y) * seg;
+                    size = keys[i].s + (keys[i+1].s - keys[i].s) * seg;
+                    break;
+                }
+            }
+            // 兜底
+            if (x === undefined) {
+                x = vw/2; y = vh*0.20; size = 150;
+            }
+
+            floatingWrapper.style.left = x + 'px';
+            floatingWrapper.style.top = y + 'px';
+            floatingWrapper.style.right = 'auto';
+            floatingWrapper.style.bottom = 'auto';
+            floatingWrapper.style.transform = 'translate(-50%, -50%)';
+            floatingWrapper.style.width = size + 'px';
+            floatingWrapper.style.height = size + 'px';
+        }
+
+        // ======== 相册滚动显示 ========
+        function handleScrollAnimations() {
+            const items = document.querySelectorAll('[data-scroll]');
+            items.forEach(item => {
+                const rect = item.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.8) {
+                    item.classList.add('visible');
+                }
+            });
+        }
+
+        // ======== 漂浮弹幕系统 ========
+        const poems = [
+            '长风破浪会有时，直挂云帆济沧海',
+            '莫愁前路无知己，天下谁人不识君',
+            '海内存知己，天涯若比邻',
+            '浮云游子意，落日故人情',
+            '劝君更尽一杯酒，西出阳关无故人',
+            '桃花潭水深千尺，不及汪伦送我情',
+            '山回路转不见君，雪上空留马行处',
+            '孤帆远影碧空尽，唯见长江天际流',
+            '桃李春风一杯酒，江湖夜雨十年灯',
+            '愿君如星我如月，夜夜流光相皎洁',
+            '春风得意马蹄疾，一日看尽长安花',
+            '两情若是久长时，又岂在朝朝暮暮',
+            '且将新火试新茶，诗酒趁年华',
+            '博观而约取，厚积而薄发',
+            '愿我如星君如月，此生不负相思意',
+            '金风玉露一相逢，便胜却人间无数',
+            '此去经年，应是良辰好景虚设',
+            '青山一道同云雨，明月何曾是两乡',
+            '洛阳亲友如相问，一片冰心在玉壶',
+            '相知无远近，万里尚为邻',
+        ];
+
+        const specialTexts = [
+            { text: '宝宝最好看了', cls: 'big-love' },
+            { text: '我想死你了', cls: 'miss-you' },
+        ];
+
+        let lastPoemScroll = 0;
+        let poemSpawnAccum = 0;
+        const poemContainer = document.getElementById('poemContainer');
+
+        function spawnPoem(forceY, forceCls) {
+            const text = poems[Math.floor(Math.random() * poems.length)];
+            const el = document.createElement('div');
+            el.className = 'floating-poem';
+            el.textContent = text;
+
+            const vh = window.innerHeight;
+
+            // 随机方向 + 随机高度
+            const dirs = ['ltr', 'ltr', 'rtl', 'diag']; // ltr 权重更高
+            const dir = forceCls || dirs[Math.floor(Math.random() * dirs.length)];
+            el.classList.add(dir);
+
+            // 随机高度区域: 上段(10%-35%) 中段(30%-60%) 下段(55%-85%)
+            const zones = [
+                Math.random() * 0.25 + 0.08,  // 上
+                Math.random() * 0.30 + 0.30,  // 中
+                Math.random() * 0.30 + 0.55,  // 下
+            ];
+            const startY = forceY !== undefined ? forceY / vh : zones[Math.floor(Math.random() * 3)];
+            el.style.top = (startY * 100) + '%';
+
+            // 动画时长变化
+            el.style.animationDuration = (Math.random() * 8 + 10) + 's';
+
+            // 随机字体大小 1em ~ 2.2em
+            el.style.fontSize = (Math.random() * 1.2 + 1.0) + 'em';
+
+            poemContainer.appendChild(el);
+
+            const duration = parseFloat(el.style.animationDuration) * 1000;
+            setTimeout(() => el.remove(), duration + 500);
+        }
+
+        // 特殊大字弹幕
+        function spawnSpecial() {
+            const item = specialTexts[Math.floor(Math.random() * specialTexts.length)];
+            const el = document.createElement('div');
+            el.className = 'floating-poem ' + item.cls;
+            el.textContent = item.text;
+
+            const vh = window.innerHeight;
+            // 飘在屏幕中段，显眼
+            el.style.top = (Math.random() * 0.3 + 0.3) * 100 + '%';
+
+            poemContainer.appendChild(el);
+
+            const duration = parseFloat(
+                item.cls === 'big-love' ? '10000' : '11000'
+            );
+            setTimeout(() => el.remove(), duration + 500);
+        }
+
+        function checkPoemSpawn() {
+            const currentScroll = window.scrollY;
+            const diff = Math.abs(currentScroll - lastPoemScroll);
+            poemSpawnAccum += diff;
+
+            // 每滚动 350px 就生成一波弹幕（更频繁）
+            while (poemSpawnAccum > 350) {
+                poemSpawnAccum -= 350;
+
+                // 一波生成 1-3 条
+                const batch = Math.floor(Math.random() * 3) + 1;
+                const vh = window.innerHeight;
+                for (let i = 0; i < batch; i++) {
+                    const y = Math.random() * vh * 0.7 + vh * 0.1;
+                    setTimeout(() => spawnPoem(y), i * 150); // 错开一点
+                }
+            }
+
+            lastPoemScroll = currentScroll;
+        }
+
+        // 定时触发特殊弹幕
+        let specialTimer = 0;
+        function checkSpecialSpawn() {
+            specialTimer++;
+            // 约每 8 秒触发一次
+            if (specialTimer > 20) {
+                spawnSpecial();
+                specialTimer = 0;
+            }
+        }
+        setInterval(checkSpecialSpawn, 400);
+
+        // ======== 音乐 - 纯净自动播放 + 可暂停 ========
+        const music = document.getElementById('bgMusic');
+        const musicControl = document.getElementById('musicControl');
+        const musicLabel = document.getElementById('musicLabel');
+        let isPlaying = false;
+        let userPaused = false; // 用户手动暂停后不再自动恢复
+
+        function doPlay() {
+            if (isPlaying) return;
+            music.play().then(() => {
+                isPlaying = true;
+                userPaused = false;
+                musicLabel.textContent = '今宵是飘逸的利己主义者 ♪';
+            }).catch(() => {});
+        }
+
+        function doPause() {
+            music.pause();
+            isPlaying = false;
+            userPaused = true;
+            musicLabel.textContent = '今宵是飘逸的利己主义者';
+        }
+
+        // 左下角播放/暂停按钮
+        musicControl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (isPlaying) {
+                doPause();
+            } else {
+                doPlay();
+            }
+        });
+
+        // 用户做了任何交互 → 尝试播放（但尊重手动暂停）
+        function interactionTryPlay() {
+            if (!isPlaying && !userPaused) {
+                doPlay();
+            }
+        }
+
+        // 加载时尝试
+        doPlay();
+
+        // 首次真实用户手势：click / touch / key → 必定触发播放
+        function firstRealGesture() {
+            doPlay();
+            // 移除一次性监听
+            ['click','touchstart','keydown'].forEach(evt => {
+                document.removeEventListener(evt, firstRealGesture, true);
+            });
+        }
+        ['click','touchstart','keydown'].forEach(evt => {
+            document.addEventListener(evt, firstRealGesture, true);
+        });
+
+        // 滚动也持续尝试（但不覆盖暂停）
+        document.addEventListener('scroll', () => {
+            if (!isPlaying && !userPaused) doPlay();
+        }, { passive: true });
+
+        // ======== 事件绑定 ========
+        window.addEventListener('scroll', () => {
+            updateFloatingAvatar();
+            handleScrollAnimations();
+            checkPoemSpawn();
+        });
+
+        window.addEventListener('resize', () => {
+            updateFloatingAvatar();
+        });
+
+        // ======== 初始化 ========
+        window.onload = function() {
+            createStars();
+            updateFloatingAvatar();
+            handleScrollAnimations();
+
+            // 初始一波弹幕：多个高度同时飞出
+            const vh = window.innerHeight;
+            setTimeout(() => {
+                spawnPoem(vh * 0.15);
+                spawnPoem(vh * 0.35);
+                spawnPoem(vh * 0.55);
+                spawnPoem(vh * 0.72);
+            }, 800);
+            setTimeout(() => {
+                spawnPoem(vh * 0.25);
+                spawnPoem(vh * 0.48);
+                spawnPoem(vh * 0.65);
+            }, 2000);
+            // 第一条特殊弹幕
+            setTimeout(() => spawnSpecial(), 3500);
+        };
+    </script>
+</body>
+</html>

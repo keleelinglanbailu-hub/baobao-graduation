@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(which gh *)",
+      "Bash(gh auth *)",
+      "Bash(git --version)",
+      "Bash(git config *)",
+      "Bash(git init *)",
+      "Bash(git checkout *)",
+      "Bash(npx surge *)",
+      "Bash(git add *)",
+      "Bash(git rm *)",
+      "Bash(git commit -m '🎓 宝宝的毕业庆祝网页 *)",
+      "Bash(git reset *)",
+      "Bash(git commit *)"
+    ]
+  }
+}
